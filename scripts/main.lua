@@ -38,6 +38,26 @@ if not ok then
     return
 end
 
+-- ─── bhaptics play helpers ───────────────────────────────────────────────────
+-- Wraps bhaptics.play / play_param and logs if the SDK returns an error.
+-- A request ID of -1 indicates the pattern name was not found or playback failed.
+
+local function Play(eventName)
+    local reqId = bhaptics.play(eventName)
+    if reqId < 0 then
+        print("[BehemothHaptics] play() failed for pattern: " .. tostring(eventName))
+    end
+    return reqId
+end
+
+local function PlayParam(eventName, requestId, intensity, duration, angleX, offsetY)
+    local reqId = bhaptics.play_param(eventName, requestId, intensity, duration, angleX, offsetY)
+    if reqId < 0 then
+        print("[BehemothHaptics] play_param() failed for pattern: " .. tostring(eventName))
+    end
+    return reqId
+end
+
 -- ─── Connect to bHaptics Player ───────────────────────────────────────────────
 
 if bhaptics.is_player_installed() and not bhaptics.is_player_running() then
@@ -50,6 +70,7 @@ if bhaptics.is_player_installed() and not bhaptics.is_player_running() then
             return
         end
         print("[BehemothHaptics] Connected after auto-launch.")
+        Play("HeartBeat")
     end)
 else
     local initOk, initErr = bhaptics.registry_and_init(API_KEY, APP_ID, "{}")
@@ -58,6 +79,7 @@ else
         return
     end
     print("[BehemothHaptics] Connected.")
+    Play("HeartBeat")
 end
 
 -- ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -81,28 +103,28 @@ local function HeartBeat()
     -- Only pulse while health is low and the health-update hook has fired recently.
     if os.clock() - heartbeatTime > 30 then return end
     if playerHealth > 0 and playerHealth < 30 then
-        bhaptics.play("HeartBeat")
+        Play("HeartBeat")
     end
 end
 
 local function RopeGrappleHookZip()
     if isPause then return end
     if isRopeGrappleHookZip then
-        bhaptics.play("RopeGrappleHookZip")
+        Play("RopeGrappleHookZip")
     end
 end
 
 local function LeftHandCrush()
     if isPause then return end
     if isLeftHandCrush then
-        bhaptics.play("LeftHandCrush")
+        Play("LeftHandCrush")
     end
 end
 
 local function RightHandCrush()
     if isPause then return end
     if isRightHandCrush then
-        bhaptics.play("RightHandCrush")
+        Play("RightHandCrush")
     end
 end
 
@@ -135,19 +157,19 @@ end
 -- Inventory
 local function AttachInventory(self)
     local slot = CheckSlot(self:get():GetFullName())
-    bhaptics.play(slot .. "InputItem")
+    Play(slot .. "InputItem")
 end
 
 local function GrabFromInventory(self)
     local slotProp = self:get():GetPropertyValue("Slot")
     if slotProp ~= nil and slotProp:GetFullName() ~= nil then
         local slot = CheckSlot(slotProp:GetFullName())
-        bhaptics.play(slot .. "OutputItem")
+        Play(slot .. "OutputItem")
     end
 end
 
 local function ReturnToInventory(self)
-    bhaptics.play("ChestSlotInputItem")
+    Play("ChestSlotInputItem")
 end
 
 -- Hand item tracking
@@ -157,10 +179,10 @@ local function HeldActorGrab(self, Grabber, Hand)
         and string.find(self:get():GetPropertyValue("Owner"):GetFullName(), "Player")) then
         if Hand:get() == 1 then
             handItem["RightHandItem"] = self:get():GetFullName()
-            bhaptics.play("RightHandPickupItem")
+            Play("RightHandPickupItem")
         else
             handItem["LeftHandItem"] = self:get():GetFullName()
-            bhaptics.play("LeftHandPickupItem")
+            Play("LeftHandPickupItem")
         end
     end
 end
@@ -172,9 +194,9 @@ local function OnGripPress(self, Hand, Component, Entry)
         return
     end
     if Hand:get():GetPropertyValue("ControllerHand") == 1 then
-        bhaptics.play("RightHandPickupItem")
+        Play("RightHandPickupItem")
     else
-        bhaptics.play("LeftHandPickupItem")
+        Play("LeftHandPickupItem")
     end
 end
 
@@ -229,9 +251,9 @@ end
 -- Bow
 local function LaunchArrow(self)
     if handItem["LeftHandItem"] ~= nil and string.find(handItem["LeftHandItem"], "BHM_Bow") then
-        bhaptics.play("LeftHandLaunchArrow")
+        Play("LeftHandLaunchArrow")
     else
-        bhaptics.play("RightHandLaunchArrow")
+        Play("RightHandLaunchArrow")
     end
 end
 
@@ -241,64 +263,64 @@ local function OnInteractPress(self) end   -- reserved, no effect yet
 local function OnHit(self)
     local hasAttack = false
     if self:get():GetFullName() == handItem["LeftHandItem"] then
-        bhaptics.play("LeftHandMeleeAttackHit")
+        Play("LeftHandMeleeAttackHit")
         hasAttack = true
     end
     if self:get():GetFullName() == handItem["RightHandItem"] then
-        bhaptics.play("RightHandMeleeAttackHit")
+        Play("RightHandMeleeAttackHit")
         hasAttack = true
     end
     if not hasAttack then
-        bhaptics.play("LeftHandMeleeAttackHit")
-        bhaptics.play("RightHandMeleeAttackHit")
+        Play("LeftHandMeleeAttackHit")
+        Play("RightHandMeleeAttackHit")
     end
 end
 
 local function OnAttackBlocked(self)
     local hasAttack = false
     if self:get():GetFullName() == handItem["LeftHandItem"] then
-        bhaptics.play("LeftHandMeleeAttackBlocked")
+        Play("LeftHandMeleeAttackBlocked")
         hasAttack = true
     end
     if self:get():GetFullName() == handItem["RightHandItem"] then
-        bhaptics.play("RightHandMeleeAttackBlocked")
+        Play("RightHandMeleeAttackBlocked")
         hasAttack = true
     end
     if not hasAttack then
-        bhaptics.play("LeftHandMeleeAttackBlocked")
-        bhaptics.play("RightHandMeleeAttackBlocked")
+        Play("LeftHandMeleeAttackBlocked")
+        Play("RightHandMeleeAttackBlocked")
     end
 end
 
 local function OnBlockedAttack(self)
     local hasAttack = false
     if self:get():GetFullName() == handItem["LeftHandItem"] then
-        bhaptics.play("LeftHandMeleeBlockedAttack")
+        Play("LeftHandMeleeBlockedAttack")
         hasAttack = true
     end
     if self:get():GetFullName() == handItem["RightHandItem"] then
-        bhaptics.play("RightHandMeleeBlockedAttack")
+        Play("RightHandMeleeBlockedAttack")
         hasAttack = true
     end
     if not hasAttack then
-        bhaptics.play("LeftHandMeleeBlockedAttack")
-        bhaptics.play("RightHandMeleeBlockedAttack")
+        Play("LeftHandMeleeBlockedAttack")
+        Play("RightHandMeleeBlockedAttack")
     end
 end
 
 local function OnParriedAttack(self)
     local hasAttack = false
     if self:get():GetFullName() == handItem["LeftHandItem"] then
-        bhaptics.play("LeftHandMeleeParriedAttack")
+        Play("LeftHandMeleeParriedAttack")
         hasAttack = true
     end
     if self:get():GetFullName() == handItem["RightHandItem"] then
-        bhaptics.play("RightHandMeleeParriedAttack")
+        Play("RightHandMeleeParriedAttack")
         hasAttack = true
     end
     if not hasAttack then
-        bhaptics.play("LeftHandMeleeParriedAttack")
-        bhaptics.play("RightHandMeleeParriedAttack")
+        Play("LeftHandMeleeParriedAttack")
+        Play("RightHandMeleeParriedAttack")
     end
 end
 
@@ -306,15 +328,15 @@ end
 local function OnActorHitLevelCheck(self, SelfActor, OtherActor, NormalImpulse, Hit)
     if math.abs(NormalImpulse:get().X) > 200 then
         if self:get():GetFullName() == handItem["LeftHandItem"] then
-            bhaptics.play("LeftHandItemHit")
+            Play("LeftHandItemHit")
             if string.find(OtherActor:get():GetFullName(), "_PlayerHand_") then
-                bhaptics.play("RightHandItemHit")
+                Play("RightHandItemHit")
             end
         end
         if self:get():GetFullName() == handItem["RightHandItem"] then
-            bhaptics.play("RightHandItemHit")
+            Play("RightHandItemHit")
             if string.find(OtherActor:get():GetFullName(), "_PlayerHand_") then
-                bhaptics.play("LeftHandItemHit")
+                Play("LeftHandItemHit")
             end
         end
     end
@@ -326,16 +348,16 @@ local function OnHammerAreaBeginOverlap(self, OverlappedComponent, OtherActor, O
     forgeTime = os.clock()
     local hasAttack = false
     if self:get():GetFullName() == handItem["LeftHandItem"] then
-        bhaptics.play("LeftHandMeleeBlockedAttack")
+        Play("LeftHandMeleeBlockedAttack")
         hasAttack = true
     end
     if self:get():GetFullName() == handItem["RightHandItem"] then
-        bhaptics.play("RightHandMeleeBlockedAttack")
+        Play("RightHandMeleeBlockedAttack")
         hasAttack = true
     end
     if not hasAttack then
-        bhaptics.play("LeftHandMeleeBlockedAttack")
-        bhaptics.play("RightHandMeleeBlockedAttack")
+        Play("LeftHandMeleeBlockedAttack")
+        Play("RightHandMeleeBlockedAttack")
     end
 end
 
@@ -358,9 +380,9 @@ end
 
 local function OnStrengthSourceCrushed(self, SourceActor, Char, Hand)
     if Hand:get():GetPropertyValue("ControllerHand") == 1 then
-        bhaptics.play("RightHandCrushed")
+        Play("RightHandCrushed")
     else
-        bhaptics.play("LeftHandCrushed")
+        Play("LeftHandCrushed")
     end
 end
 
@@ -383,9 +405,9 @@ end
 
 local function LoreCollectibleCrushed(self, CrushComponent, Actor, PC, Character, Hand)
     if Hand:get():GetPropertyValue("ControllerHand") == 1 then
-        bhaptics.play("RightHandCrushed")
+        Play("RightHandCrushed")
     else
-        bhaptics.play("LeftHandCrushed")
+        Play("LeftHandCrushed")
     end
 end
 
@@ -408,15 +430,15 @@ end
 
 local function OnCrushedDelegate_Event(self, CrushComponent, Actor, PC, Character, Hand)
     if Hand:get():GetPropertyValue("ControllerHand") == 1 then
-        bhaptics.play("RightHandCrushed")
+        Play("RightHandCrushed")
     else
-        bhaptics.play("LeftHandCrushed")
+        Play("LeftHandCrushed")
     end
 end
 
 -- Grapple / rope
 local function FireRope(self)
-    bhaptics.play("FireRope")
+    Play("FireRope")
 end
 
 local function OnRopeGrappleHookZipEngaged(self)
@@ -430,7 +452,7 @@ end
 local function RopePullTick(self)
     if os.clock() - lastRopePullTime > 0.15 then
         lastRopePullTime = os.clock()
-        bhaptics.play("RopePull")
+        Play("RopePull")
     end
 end
 
@@ -438,7 +460,7 @@ end
 local function SavePointOnGripRelease(self, Hand)
     local handVal = Hand:get():GetPropertyValue("ControllerHand")
     if os.clock() - lastSavePointTime < 0.5 and lastReleaseHand ~= handVal then
-        bhaptics.play("SaveGame")
+        Play("SaveGame")
     end
     lastSavePointTime = os.clock()
     lastReleaseHand   = handVal
@@ -446,11 +468,11 @@ end
 
 -- Player state
 local function OnCrouch(self)
-    bhaptics.play("Crouch")
+    Play("Crouch")
 end
 
 local function OnDodge(self)
-    bhaptics.play("Dodge")
+    Play("Dodge")
 end
 
 local function BP_StrengthStateChanged(self) end   -- reserved, no effect yet
@@ -464,7 +486,7 @@ local function OnDamageTaken(self)
 
     local enemy = self:get():GetPropertyValue("LastHitBy")
     if not enemy:IsValid() then
-        bhaptics.play("NoEnemyDamage")
+        Play("NoEnemyDamage")
         return
     end
     local enemyPawn = enemy:GetPropertyValue("Pawn")
@@ -477,11 +499,11 @@ local function OnDamageTaken(self)
     local angleYaw = (playerYaw - targetRotation.Yaw + 180) % 360
     if angleYaw < 0 then angleYaw = angleYaw + 360 end
 
-    bhaptics.play_param("DefaultDamage", 0, 1.0, 1.0, angleYaw, 0.0)
+    PlayParam("DefaultDamage", 0, 1.0, 1.0, angleYaw, 0.0)
 end
 
 local function OnCharacterDeath(self)
-    bhaptics.play("PlayerDeath")
+    Play("PlayerDeath")
     playerHealth = 0
 end
 
@@ -489,7 +511,7 @@ local function OnHealthUpdated(self, PrevHealth, NewHealth)
     if PrevHealth:get() < NewHealth:get() then
         if os.clock() - healingTime > 1.2 then
             healingTime = os.clock()
-            bhaptics.play("Healing")
+            Play("Healing")
         end
     end
     playerHealth  = NewHealth:get()
@@ -512,8 +534,12 @@ local function RegisterLoreCollectible()
         { "/Game/BHM/Interactables/LoreCollectible/BP_LoreCollectible.BP_LoreCollectible_C:BndEvt__BP_LoreCollectible_PLCInteractionCrush_K2Node_ComponentBoundEvent_0_PLCGenericCrushSignature__DelegateSignature", LoreCollectibleCrushed },
     }
     for _, entry in ipairs(hooks) do
-        local id1, id2 = RegisterHook(entry[1], entry[2])
-        hookIds2[entry[1]] = { id1 = id1, id2 = id2 }
+        local ok, result1, result2 = pcall(RegisterHook, entry[1], entry[2])
+        if ok then
+            hookIds2[entry[1]] = { id1 = result1, id2 = result2 }
+        else
+            print("[BehemothHaptics] LoreCollectible hook failed: " .. entry[1])
+        end
     end
 end
 
@@ -529,8 +555,12 @@ local function RegisterMaxHealthUp()
         { "/Game/BHM/Blueprints/Interactables/Craftables/BP_MaxHealthUp.BP_MaxHealthUp_C:OnCrushedDelegate_Event",     OnCrushedDelegate_Event },
     }
     for _, entry in ipairs(hooks) do
-        local id1, id2 = RegisterHook(entry[1], entry[2])
-        hookIds3[entry[1]] = { id1 = id1, id2 = id2 }
+        local ok, result1, result2 = pcall(RegisterHook, entry[1], entry[2])
+        if ok then
+            hookIds3[entry[1]] = { id1 = result1, id2 = result2 }
+        else
+            print("[BehemothHaptics] MaxHealthUp hook failed: " .. entry[1])
+        end
     end
 end
 
@@ -593,25 +623,26 @@ local function RegisterHooks()
         { "/Game/BHM/Maps/World/ZoneBat/ZoneBat_Boss/ZoneBat_Boss_Des.ZoneBat_Boss_Des_C:BndEvt__ZoneBat_Boss_Des_BP_SetPieceManager_C_0_K2Node_ActorBoundEvent_0_SequenceSetupElements__DelegateSignature",          ReturnToInventory },
     }
 
+    local succeeded, failed = 0, 0
     for _, entry in ipairs(hooks) do
-        local id1, id2 = RegisterHook(entry[1], entry[2])
-        hookIds[entry[1]] = { id1 = id1, id2 = id2 }
+        local ok, result1, result2 = pcall(RegisterHook, entry[1], entry[2])
+        if ok then
+            hookIds[entry[1]] = { id1 = result1, id2 = result2 }
+            succeeded = succeeded + 1
+        else
+            print("[BehemothHaptics] Hook failed: " .. entry[1])
+            failed = failed + 1
+        end
     end
+    print("[BehemothHaptics] RegisterHooks complete: " .. succeeded .. " ok, " .. failed .. " failed.")
 end
 
 -- ─── Player spawn — register hooks once the controller is ready ───────────────
 
 RegisterHook("/Script/Engine.PlayerController:ClientRestart", function()
     if not resetHook then return end
-    local ran, errorMsg = pcall(RegisterHooks)
-    if ran then
-        ExecuteWithDelay(1500, function()
-            bhaptics.play("HeartBeat")
-        end)
-        resetHook = false
-    else
-        print("[BehemothHaptics] RegisterHooks failed: " .. tostring(errorMsg))
-    end
+    RegisterHooks()
+    resetHook = false
 end)
 
 -- On-demand hook registration triggered by HeldActorGrab seeing relevant actors
