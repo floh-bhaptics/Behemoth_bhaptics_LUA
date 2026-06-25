@@ -56,7 +56,7 @@ echo.
 
 :: ── Copy mod files ────────────────────────────────────────────────────────────
 
-set "MOD_DIR=%GAME_DIR%\Mods\BehemothHaptics\scripts"
+set "MOD_DIR=%GAME_DIR%\Mods\BehemothHaptics\Scripts"
 
 echo Installing mod files to:
 echo   %MOD_DIR%
@@ -64,9 +64,9 @@ echo.
 
 if not exist "%MOD_DIR%" mkdir "%MOD_DIR%"
 
-copy /Y "%~dp0scripts\main.lua"            "%MOD_DIR%\" > nul
-copy /Y "%~dp0scripts\bhaptics_library.dll" "%MOD_DIR%\" > nul
-copy /Y "%~dp0scripts\bhaptics_wrapper.dll" "%MOD_DIR%\" > nul
+copy /Y "%~dp0scripts\main.lua"         "%MOD_DIR%\" > nul
+copy /Y "%~dp0lib\bhaptics_library.dll" "%MOD_DIR%\" > nul
+copy /Y "%~dp0lib\bhaptics_wrapper.dll" "%MOD_DIR%\" > nul
 
 echo Mod files copied.
 echo.
