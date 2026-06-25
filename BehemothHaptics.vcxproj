@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Deploy|x64">
+      <Configuration>Deploy</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{B1C2D3E4-F5A6-7890-BCDE-F12345678901}</ProjectGuid>
+    <RootNamespace>BehemothHaptics</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <!-- Destination folder — change this if your game path differs -->
+    <DeployDir>G:\SteamLibrary\steamapps\common\Skydance's BEHEMOTH\BHM\Binaries\Win64\Mods\BehemothHaptics\</DeployDir>
+  </PropertyGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Deploy|x64'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Deploy|x64'">
+    <!-- Nothing to build, so point NMake at a no-op -->
+    <NMakeBuildCommandLine>echo Nothing to build.</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>echo Nothing to clean.</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>echo Nothing to rebuild.</NMakeReBuildCommandLine>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Deploy|x64'">
+    <PostBuildEvent>
+      <Command>
+        echo Deploying main.lua to $(DeployDir)
+        if not exist "$(DeployDir)" mkdir "$(DeployDir)"
+        xcopy /Y "$(SolutionDir)scripts\main.lua" "$(DeployDir)"
+        echo Done.
+      </Command>
+      <Message>Copying main.lua to mod folder...</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+
+  <!-- Show main.lua in the Solution Explorer -->
+  <ItemGroup>
+    <None Include="scripts\main.lua" />
+  </ItemGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+
+</Project>
