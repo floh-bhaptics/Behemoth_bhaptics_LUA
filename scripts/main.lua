@@ -575,13 +575,12 @@ local function RegisterHooks()
         { "/Game/BHM/Blueprints/Interactables/Props/GrappleHook/BP_GrappleHookGun_V2.BP_GrappleHookGun_V2_C:FireRope",                    FireRope },
         { "/Script/BHM.BHMRopeReactionInterface:OnRopeGrappleHookZipEngaged",                                                              OnRopeGrappleHookZipEngaged },
         { "/Script/BHM.BHMRopeReactionInterface:OnRopeGrappleHookZipDisengaged",                                                           OnRopeGrappleHookZipDisengaged },
-        { "/Game/BHM/Blueprints/LevelFeatures/Rope/BP_BaseRopeReactionActor.BP_BaseRopeReactionActor_C:RopePullTick",                      RopePullTick },
+
         -- Strength / crush
         { "/Script/BHM.BHMPlayerController:OnStrengthSourceBeginCrush",                                                                    OnStrengthSourceBeginCrush },
         { "/Script/BHM.BHMPlayerController:OnStrengthSourceEndCrush",                                                                      OnStrengthSourceEndCrush },
         { "/Script/BHM.BHMPlayerController:OnStrengthSourceCrushed",                                                                       OnStrengthSourceCrushed },
-        -- Save point
-        { "/Game/BHM/Blueprints/LevelFeatures/SavePoint/BP_SavePoint.BP_SavePoint_C:OnGripRelease",                                        SavePointOnGripRelease },
+
         -- Pause menu
         { "/Game/BHM/Blueprints/Player/BP_BHM_GamePausedUI.BP_BHM_GamePausedUI_C:HideElements",                                           HideElements },
         { "/Game/BHM/Blueprints/Player/BP_BHM_GamePausedUI.BP_BHM_GamePausedUI_C:EnableElements",                                         EnableElements },
