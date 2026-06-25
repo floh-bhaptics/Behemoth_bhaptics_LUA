@@ -13,6 +13,7 @@ if not ok then
     return
 end
 
+
 -- ─── Connect to bHaptics Player ───────────────────────────────────────────────
 -- Auto-launch the Player if it is installed but not currently running.
 if bhaptics.is_player_installed() and not bhaptics.is_player_running() then
