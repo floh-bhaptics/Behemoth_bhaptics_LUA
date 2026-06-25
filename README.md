@@ -1,136 +1,75 @@
-# BehemothHaptics — UE4SS Lua Mod for bHaptics
+# BehemothHaptics — bHaptics Mod for Skydance's BEHEMOTH
 
-A haptic feedback mod for *Behemoth* (Unreal Engine, VR) using UE4SS and the
-bHaptics SDK.
+Adds full haptic feedback support for the [bHaptics](https://www.bhaptics.com) TactSuit to the VR game **Skydance's BEHEMOTH**. Built as a UE4SS Lua mod.
 
----
+## Supported effects
 
-## File layout
-
-```
-<Game>\Behemoth\Binaries\Win64\ue4ss\Mods\
-  BehemothHaptics\
-    scripts\
-      main.lua
-      bhaptics_wrapper.dll   ← you compile this (source: bhaptics_wrapper.cpp)
-      bhaptics_library.dll   ← from the bHaptics SDK package
-  mods.txt                   ← add "BehemothHaptics : 1" here
-```
-
----
-
-## Step 1 — Find the Lua version UE4SS uses
-
-UE4SS embeds Lua. The wrapper DLL must be compiled against the **same** Lua
-version and ABI. To check:
-
-1. Download the **zDEV** build of UE4SS from https://github.com/UE4SS-RE/RE-UE4SS/releases
-2. In the zip, look for `lua54.dll`, `lua51.dll`, etc. — that tells you the version.
-3. Grab matching Lua headers + import library from https://luabinaries.sourceforge.net
-
-UE4SS currently ships with **Lua 5.4** (lua54.dll).
+- Directional damage feedback (attack direction is mapped to the vest)
+- Player death
+- Healing
+- Low health heartbeat (pulses while health is below 30%)
+- Dodge
+- Crouch
+- Melee hits, blocks, parries, and counters
+- Picking up and sheathing items (per holster slot)
+- Bow draw and arrow release
+- Grapple hook fire and zip-line traversal
+- Strength crush (grip interactions)
+- Lore collectible and upgrade interactions
 
 ---
 
-## Step 2 — Inspect bhaptics_library.dll exports
+## Requirements
 
-Before compiling, confirm the exact export names in `bhaptics_library.dll`:
-
-```
-dumpbin /EXPORTS bhaptics_library.dll
-```
-
-or with PowerShell:
-
-```powershell
-[System.Reflection.Assembly]::LoadWithPartialName("System") | Out-Null
-$dll = [System.Runtime.InteropServices.Marshal]
-# Use dumpbin from a Visual Studio Developer Command Prompt instead:
-# dumpbin /EXPORTS bhaptics_library.dll | findstr /i "Initialize\|Play\|Destroy"
-```
-
-The wrapper assumes these exported names (plain C / `extern "C"`):
-- `Initialize`
-- `Destroy`
-- `Play`
-- `PlayParam`
-- `IsConnected`
-- `IsPlaying`
-- `Stop`
-
-If the DLL exports C++ mangled names instead, update the `LoadProc` calls in
-`bhaptics_wrapper.cpp` with the exact mangled names from `dumpbin`.
+- [bHaptics Player](https://www.bhaptics.com/setup) installed and running
+- A bHaptics TactSuit (X16, X40, or Pro)
+- **UE4SS v3.0.1** (see installation below)
 
 ---
 
-## Step 3 — Compile bhaptics_wrapper.dll
+## Installation
 
-### With MSVC (Visual Studio Developer Command Prompt, x64):
+### Step 1 — Install UE4SS
 
-```bat
-cl /LD /MD /O2 /std:c++17 ^
-   bhaptics_wrapper.cpp ^
-   /I"C:\path\to\lua54\include" ^
-   /link "C:\path\to\lua54\lua54.lib" ^
-   /OUT:bhaptics_wrapper.dll
-```
-
-### With MinGW-w64 (x64):
-
-```bash
-g++ -shared -O2 -std=c++17 \
-    -I/path/to/lua54/include \
-    bhaptics_wrapper.cpp \
-    -L/path/to/lua54/lib -llua54 \
-    -o bhaptics_wrapper.dll
-```
-
-Copy the resulting `bhaptics_wrapper.dll` into the `scripts/` folder.
-
----
-
-## Step 4 — Enable the mod
-
-Open (or create) `ue4ss\Mods\mods.txt` and add:
+Download **[UE4SS v3.0.1](https://github.com/UE4SS-RE/RE-UE4SS/releases/download/v3.0.1/UE4SS_v3.0.1.zip)** and extract the contents of the zip directly into your game's `Win64` folder:
 
 ```
-BehemothHaptics : 1
+<Steam>\steamapps\common\Skydance's BEHEMOTH\BHM\Binaries\Win64\
 ```
 
----
+You should end up with `dwmapi.dll` and a `ue4ss` folder sitting next to `BHM-Win64-Shipping.exe`.
 
-## Step 5 — Run
+### Step 2 — Install the mod
 
-1. Start the **bHaptics Player** app on your PC.
-2. Launch *Behemoth*.
-3. After ~1.5 seconds the `heartbeat` pattern should play.
-4. Open the UE4SS console and type `bhaptics_play heartbeat` to trigger it manually.
+Download **[Behemoth_bhaptics_LUA.zip](https://github.com/floh-bhaptics/Behemoth_bhaptics_LUA/releases/latest/download/Behemoth_bhaptics_LUA.zip)** and extract it anywhere. Then run **`Install.bat`**.
+
+The installer will:
+- Locate the game automatically by scanning your drives for the default Steam path, or prompt you for the path if it can't find it
+- Verify that UE4SS is installed
+- Copy the mod files into the correct `Mods\BehemothHaptics\scripts\` folder
+- Add `BehemothHaptics : 1` to `mods.txt` automatically
+
+### Step 3 — Verify
+
+Launch the game. If your suit plays a short heartbeat pulse shortly after loading in, the mod is connected and working.
 
 ---
 
 ## Troubleshooting
 
-| Symptom | Likely cause |
-|---|---|
-| `Could not load bhaptics_wrapper.dll` | Wrapper not in `scripts/`, or compiled against wrong Lua version |
-| `bhaptics_library.dll loaded but exports not found` | Run `dumpbin /EXPORTS` and update the symbol names in the .cpp |
-| `SDK failed to initialize` | bHaptics Player not running, or wrong App ID / API Key |
-| Pattern plays but no vibration | Event name `"heartbeat"` doesn't match what's in your bHaptics Developer Portal app |
+**No haptic feedback at all**
+- Make sure the bHaptics Player is running before launching the game.
+- Check that your suit is connected and showing up in the bHaptics Player.
+
+**Heartbeat on startup does not play**
+- The mod may not have loaded. Check the UE4SS log at `Win64\UE4SS.log` for any errors mentioning `BehemothHaptics`.
+- Make sure `BehemothHaptics : 1` is present in `Win64\Mods\mods.txt`. Re-running `Install.bat` will add or re-enable it.
+
+**Some effects don't work**
+- Certain effects (save point, rope pull) are not implemented in this version due to changes in the game's blueprint structure.
 
 ---
 
-## Adding real game hooks (next step)
+## Credits
 
-Replace the `ExecuteWithDelay` demo in `main.lua` with actual UE4SS hooks.
-Example — trigger haptics when the player takes damage:
-
-```lua
-RegisterHook("/Script/Behemoth.BehemothCharacter:ReceiveDamage",
-    function(self, damage, ...)
-        bhaptics.play("receive_damage")
-    end
-)
-```
-
-Use the UE4SS **Live Property Viewer** (UHT Dumper output) to find the right
-Unreal function paths for Behemoth.
+Built with [UE4SS](https://github.com/UE4SS-RE/RE-UE4SS) and the [bHaptics SDK](https://www.bhaptics.com/develop).
