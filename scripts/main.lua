@@ -502,6 +502,10 @@ local function OnDamageTaken(self)
     PlayParam("DefaultDamage", 0, 1.0, 1.0, angleYaw, 0.0)
 end
 
+local function OnCameraShake(self)
+    Play("CameraShake")
+end
+
 local function OnCharacterDeath(self)
     Play("PlayerDeath")
     playerHealth = 0
@@ -606,6 +610,8 @@ local function RegisterHooks()
         { "/Script/BHM.BHMRopeReactionInterface:OnRopeGrappleHookZipEngaged",                                                              OnRopeGrappleHookZipEngaged },
         { "/Script/BHM.BHMRopeReactionInterface:OnRopeGrappleHookZipDisengaged",                                                           OnRopeGrappleHookZipDisengaged },
 
+        -- Camera shake
+        { "/Script/Engine.PlayerController:ClientStartCameraShake",                                                                         OnCameraShake },
         -- Strength / crush
         { "/Script/BHM.BHMPlayerController:OnStrengthSourceBeginCrush",                                                                    OnStrengthSourceBeginCrush },
         { "/Script/BHM.BHMPlayerController:OnStrengthSourceEndCrush",                                                                      OnStrengthSourceEndCrush },
