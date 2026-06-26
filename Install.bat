@@ -65,8 +65,8 @@ echo.
 if not exist "%MOD_DIR%" mkdir "%MOD_DIR%"
 
 copy /Y "%~dp0scripts\main.lua"            "%MOD_DIR%\" > nul
-copy /Y "%~dp0scripts\bhaptics_library.dll" "%MOD_DIR%\" > nul
-copy /Y "%~dp0scripts\bhaptics_wrapper.dll" "%MOD_DIR%\" > nul
+copy /Y "%~dp0lib\bhaptics_library.dll" "%MOD_DIR%\" > nul
+copy /Y "%~dp0lib\bhaptics_wrapper.dll" "%MOD_DIR%\" > nul
 
 echo Mod files copied.
 echo.

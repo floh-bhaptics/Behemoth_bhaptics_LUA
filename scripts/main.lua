@@ -70,7 +70,7 @@ if bhaptics.is_player_installed() and not bhaptics.is_player_running() then
             return
         end
         print("[BehemothHaptics] Connected after auto-launch.")
-        Play("HeartBeat")
+        ExecuteWithDelay(500, function() Play("HeartBeat") end)
     end)
 else
     local initOk, initErr = bhaptics.registry_and_init(API_KEY, APP_ID, "{}")
@@ -79,7 +79,7 @@ else
         return
     end
     print("[BehemothHaptics] Connected.")
-    Play("HeartBeat")
+    ExecuteWithDelay(500, function() Play("HeartBeat") end)
 end
 
 -- ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -502,6 +502,14 @@ local function OnDamageTaken(self)
     PlayParam("DefaultDamage", 0, 1.0, 1.0, angleYaw, 0.0)
 end
 
+local function OnActivateStrength(self)
+    Play("StrengthActivated")
+end
+
+local function OnBeginStrengthAbsorb(self)
+    Play("StrengthAbsorb")
+end
+
 local function OnCameraShake(self)
     Play("CameraShake")
 end
@@ -610,6 +618,9 @@ local function RegisterHooks()
         { "/Script/BHM.BHMRopeReactionInterface:OnRopeGrappleHookZipEngaged",                                                              OnRopeGrappleHookZipEngaged },
         { "/Script/BHM.BHMRopeReactionInterface:OnRopeGrappleHookZipDisengaged",                                                           OnRopeGrappleHookZipDisengaged },
 
+        -- Strength activation
+        { "/Game/BHM/Blueprints/Player/BP_BHM_BasePlayerHand.BP_BHM_BasePlayerHand_C:OnActivateStrength",                                  OnActivateStrength },
+        { "/Game/BHM/Blueprints/Interactables/Props/HollowStrengthAbsorb/BP_HollowStrengthAbsorb.BP_HollowStrengthAbsorb_C:OnBeginStrengthAbsorb", OnBeginStrengthAbsorb },
         -- Camera shake
         { "/Script/Engine.PlayerController:ClientStartCameraShake",                                                                         OnCameraShake },
         -- Strength / crush
