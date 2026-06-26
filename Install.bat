@@ -56,7 +56,7 @@ echo.
 
 :: ── Copy mod files ────────────────────────────────────────────────────────────
 
-set "MOD_DIR=%GAME_DIR%\Mods\BehemothHaptics\Scripts"
+set "MOD_DIR=%GAME_DIR%\Mods\BehemothHaptics\scripts"
 
 echo Installing mod files to:
 echo   %MOD_DIR%
@@ -64,9 +64,9 @@ echo.
 
 if not exist "%MOD_DIR%" mkdir "%MOD_DIR%"
 
-copy /Y "%~dp0scripts\main.lua"         "%MOD_DIR%\" > nul
-copy /Y "%~dp0lib\bhaptics_library.dll" "%MOD_DIR%\" > nul
-copy /Y "%~dp0lib\bhaptics_wrapper.dll" "%MOD_DIR%\" > nul
+copy /Y "%~dp0scripts\main.lua"            "%MOD_DIR%\" > nul
+copy /Y "%~dp0scripts\bhaptics_library.dll" "%MOD_DIR%\" > nul
+copy /Y "%~dp0scripts\bhaptics_wrapper.dll" "%MOD_DIR%\" > nul
 
 echo Mod files copied.
 echo.
@@ -78,19 +78,17 @@ set "MOD_ENTRY=BehemothHaptics : 1"
 
 if not exist "%MODS_TXT%" (
     echo Creating mods.txt...
-    echo %MOD_ENTRY%> "%MODS_TXT%"
+    echo BehemothHaptics : ^1> "%MODS_TXT%"
     echo Done.
 ) else (
     :: Check if the entry already exists (enabled or disabled)
     findstr /i /c:"BehemothHaptics" "%MODS_TXT%" > nul
     if !errorlevel! == 0 (
-        :: Entry exists — make sure it is enabled (replace any ": 0" with ": 1")
-        powershell -Command "(Get-Content '%MODS_TXT%') -replace 'BehemothHaptics\s*:\s*0','BehemothHaptics : 1' | Set-Content '%MODS_TXT%'"
+        :: Entry exists — already present, nothing to do
         echo mods.txt: BehemothHaptics entry already present ^(enabled^).
     ) else (
-        :: Append the new entry
-        echo.>> "%MODS_TXT%"
-        echo %MOD_ENTRY%>> "%MODS_TXT%"
+        :: Append entry at the end of the file
+        echo BehemothHaptics : ^1>> "%MODS_TXT%"
         echo mods.txt: BehemothHaptics entry added.
     )
 )
