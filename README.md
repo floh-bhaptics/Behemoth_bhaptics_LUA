@@ -58,6 +58,15 @@ Launch the game. If your suit plays a short heartbeat pulse shortly after loadin
 
 ## Troubleshooting
 
+**Falling through the floor and dying on level loading**
+The game has a really unstable entry point when loading into the first level of the third Behemoth. When walking through the door after killing the second (winged) Behemoth and some exposition, you should be loaded into the new area, but on some systems might instead fall through the floor and die. This is due to UE4SS exposing this game weakness, and there is nothing I can do about it. The only option is to:
+- turn off UE4SS (easiest way: Go into ``<gamefolder>\\BHM\Binaries\Win64\`` and rename ``dwmapi.dll`` to something like ``dwmapi.dll.bak``)
+- load in, 
+- walk to the next save point (which is only 1 minute away),
+- save the game,
+- exit and turn UE4SS back on (rename the DLL back to ``dwmapi.dll``)
+- Start the game again and keep playing with the mod. It will work fine from here, hopefully.
+
 **No haptic feedback at all**
 - Make sure the bHaptics Player is running before launching the game.
 - Check that your suit is connected and showing up in the bHaptics Player.
