@@ -437,13 +437,16 @@ local function OnCrushedDelegate_Event(self, CrushComponent, Actor, PC, Characte
 end
 
 -- Grapple / rope
-local function FireRope(self)
-    Play("FireRope")
-end
+-- NOTE: FireRope (BP_GrappleHookGun_V2_C:FireRope) cannot be hooked safely:
+--   - Pre-hook breaks the tether mechanic (trigger-hold detection fails before
+--     the game determines the anchor type, preventing tether point creation).
+--   - Post-hook-only is not supported by UE4SS RegisterHook (nil pre-hook
+--     causes the entire registration to be rejected).
+-- No alternative trigger-level hook is exposed at the Blueprint layer.
+-- The FireRope haptic effect is left unimplemented until a safe hook is found.
 
 local function OnRopeGrappleHookZipEngaged(self)
     isRopeGrappleHookZip = true
-	Play("FireRope")
 end
 
 local function OnRopeGrappleHookZipDisengaged(self)
@@ -615,12 +618,14 @@ local function RegisterHooks()
         -- Physics hits
         { "/Script/SDIGamePlugin.SDIHeldActor:OnActorHitLevelCheck",                                                                        OnActorHitLevelCheck },
         -- Grapple hook
-        -- { "/Game/BHM/Blueprints/Interactables/Props/GrappleHook/BP_GrappleHookGun_V2.BP_GrappleHookGun_V2_C:FireRope",                    FireRope },
+        -- FireRope hook intentionally omitted — see comment above OnRopeGrappleHookZipEngaged.
         { "/Script/BHM.BHMRopeReactionInterface:OnRopeGrappleHookZipEngaged",                                                              OnRopeGrappleHookZipEngaged },
         { "/Script/BHM.BHMRopeReactionInterface:OnRopeGrappleHookZipDisengaged",                                                           OnRopeGrappleHookZipDisengaged },
 
         -- Strength activation
         { "/Game/BHM/Blueprints/Player/BP_BHM_BasePlayerHand.BP_BHM_BasePlayerHand_C:OnActivateStrength",                                  OnActivateStrength },
+        -- NOTE: OnBeginStrengthAbsorb fails if BP_HollowStrengthAbsorb isn't loaded at startup
+        -- (level-specific Blueprint). The hook registers fine once you reach a map that has one.
         { "/Game/BHM/Blueprints/Interactables/Props/HollowStrengthAbsorb/BP_HollowStrengthAbsorb.BP_HollowStrengthAbsorb_C:OnBeginStrengthAbsorb", OnBeginStrengthAbsorb },
         -- Camera shake
         { "/Script/Engine.PlayerController:ClientStartCameraShake",                                                                         OnCameraShake },
@@ -643,7 +648,7 @@ local function RegisterHooks()
 
     local succeeded, failed = 0, 0
     for _, entry in ipairs(hooks) do
-        local ok, result1, result2 = pcall(RegisterHook, entry[1], entry[2])
+        local ok, result1, result2 = pcall(RegisterHook, entry[1], entry[2], entry[3])
         if ok then
             hookIds[entry[1]] = { id1 = result1, id2 = result2 }
             succeeded = succeeded + 1
