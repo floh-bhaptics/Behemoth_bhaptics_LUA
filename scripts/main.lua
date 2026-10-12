@@ -437,6 +437,10 @@ local function OnCrushedDelegate_Event(self, CrushComponent, Actor, PC, Characte
 end
 
 -- Grapple / rope
+local function OnRopeAcquiredFromPool(self)
+    Play("FireRope")
+end
+
 -- NOTE: FireRope (BP_GrappleHookGun_V2_C:FireRope) cannot be hooked safely:
 --   - Pre-hook breaks the tether mechanic (trigger-hold detection fails before
 --     the game determines the anchor type, preventing tether point creation).
@@ -618,7 +622,10 @@ local function RegisterHooks()
         -- Physics hits
         { "/Script/SDIGamePlugin.SDIHeldActor:OnActorHitLevelCheck",                                                                        OnActorHitLevelCheck },
         -- Grapple hook
-        -- FireRope hook intentionally omitted — see comment above OnRopeGrappleHookZipEngaged.
+        -- FireRope hook intentionally omitted — see comment near OnRopeAcquiredFromPool.
+        -- OnAcquiredFromPool fires on the rope object after it's spawned, so it cannot
+        -- interfere with the gun's trigger-hold / tether logic.
+        { "/Game/BHM/Blueprints/Interactables/Props/GrappleHook/BP_GrappleHookRope.BP_GrappleHookRope_C:OnAcquiredFromPool", OnRopeAcquiredFromPool },
         { "/Script/BHM.BHMRopeReactionInterface:OnRopeGrappleHookZipEngaged",                                                              OnRopeGrappleHookZipEngaged },
         { "/Script/BHM.BHMRopeReactionInterface:OnRopeGrappleHookZipDisengaged",                                                           OnRopeGrappleHookZipDisengaged },
 
