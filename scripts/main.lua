@@ -443,6 +443,7 @@ end
 
 local function OnRopeGrappleHookZipEngaged(self)
     isRopeGrappleHookZip = true
+	Play("FireRope")
 end
 
 local function OnRopeGrappleHookZipDisengaged(self)
@@ -614,7 +615,7 @@ local function RegisterHooks()
         -- Physics hits
         { "/Script/SDIGamePlugin.SDIHeldActor:OnActorHitLevelCheck",                                                                        OnActorHitLevelCheck },
         -- Grapple hook
-        { "/Game/BHM/Blueprints/Interactables/Props/GrappleHook/BP_GrappleHookGun_V2.BP_GrappleHookGun_V2_C:FireRope",                    FireRope },
+        -- { "/Game/BHM/Blueprints/Interactables/Props/GrappleHook/BP_GrappleHookGun_V2.BP_GrappleHookGun_V2_C:FireRope",                    FireRope },
         { "/Script/BHM.BHMRopeReactionInterface:OnRopeGrappleHookZipEngaged",                                                              OnRopeGrappleHookZipEngaged },
         { "/Script/BHM.BHMRopeReactionInterface:OnRopeGrappleHookZipDisengaged",                                                           OnRopeGrappleHookZipDisengaged },
 
