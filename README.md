@@ -59,6 +59,7 @@ Launch the game. If your suit plays a short heartbeat pulse shortly after loadin
 ## Troubleshooting
 
 **Falling through the floor and dying on level loading**
+
 The game has a really unstable entry point when loading into the first level of the third Behemoth. When walking through the door after killing the second (winged) Behemoth and some exposition, you should be loaded into the new area, but on some systems might instead fall through the floor and die. This is due to UE4SS exposing this game weakness, and there is nothing I can do about it. The only option is to:
 - turn off UE4SS (easiest way: Go into ``<gamefolder>\\BHM\Binaries\Win64\`` and rename ``dwmapi.dll`` to something like ``dwmapi.dll.bak``)
 - load in, 
